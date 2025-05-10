@@ -56,25 +56,6 @@ class JobSearchService:
         except Exception as e:
             raise Exception(f"Error searching jobs: {str(e)}")
 
-    async def search_multiple_queries(self, requests: List[JobSearchRequest]) -> Dict[str, List[JobResult]]:
-        """
-        Search for multiple job queries concurrently
-        """
-        try:
-            # Create tasks for each search request
-            tasks = [self.search_jobs(request) for request in requests]
-
-            # Run all searches concurrently
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-
-            # Combine results with their respective queries
-            return {
-                request.query: result if not isinstance(result, Exception) else []
-                for request, result in zip(requests, results)
-            }
-        except Exception as e:
-            raise Exception(f"Error in multiple job searches: {str(e)}")
-
     async def cleanup(self):
         """
         Cleanup resources when the service is shutting down
