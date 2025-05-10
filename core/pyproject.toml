@@ -1,16 +1,28 @@
 [project]
-name = "core"
+name = "job-search-api"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
-requires-python = ">=3.10"
+description = "A job search API using FastAPI and LangChain"
+requires-python = ">=3.12"
 dependencies = [
-    "fastapi[standard]>=0.115.12",
-    "langchain>=0.3.25",
-    "ruff>=0.11.9",
-    "commons-db @ file://../commons-db",
+    "fastapi==0.104.1",
+    "uvicorn==0.24.0",
+    "langchain==0.0.350",
+    "google-search-results==2.4.2",
+    "python-dotenv==1.0.0",
+    "pydantic==2.5.2",
+    "pydantic-settings==2.1.0"
 ]
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["core"]
+
 [tool.ruff]
-line-length = 120
-target-version = "py310"
+line-length = 88
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
