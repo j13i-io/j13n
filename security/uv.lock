@@ -189,17 +189,6 @@ wheels = [
 ]
 
 [[package]]
-name = "j13n"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "fastapi", extra = ["standard"] },
-]
-
-[package.metadata]
-requires-dist = [{ name = "fastapi", extras = ["standard"], specifier = ">=0.115.12" }]
-
-[[package]]
 name = "jinja2"
 version = "3.1.6"
 source = { registry = "https://pypi.org/simple" }
@@ -406,6 +395,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/d1/24/f0678256fbe0643b4
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d1/13/621cc551b72de51e6e5cb7cfc510a141e1858bd380ee3c8108fbda4a6be0/rich_toolkit-0.14.5-py3-none-any.whl", hash = "sha256:2fe9846ecbf5d0cdf236c7f43452b68d9da1436a81594aba6b79b3c48b05703b", size = 24791, upload-time = "2025-05-05T10:19:23.346Z" },
 ]
+
+[[package]]
+name = "security"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "fastapi", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fastapi", extras = ["standard"], specifier = ">=0.115.12" }]
 
 [[package]]
 name = "shellingham"
