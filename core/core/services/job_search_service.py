@@ -1,17 +1,17 @@
-from langchain.utilities import SerpAPIWrapper
-from typing import List, Dict, Any
-from ..models.job_models import JobResult, JobSearchRequest
+from typing import List
+from ..models.job_models import JobResult, JobSearchRequest, JobSearchResponse
+from ..search.providers.serp_search import SerpSearchService
+from ..search.base.search_service import SearchRequest
 from ..config.settings import get_settings
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
+
 
 class JobSearchService:
     def __init__(self):
         self.settings = get_settings()
-        self.search = SerpAPIWrapper(serpapi_api_key=self.settings.SERPAPI_API_KEY)
-        self._thread_pool = ThreadPoolExecutor(max_workers=4)
+        self.search_service = SerpSearchService()
 
     def _construct_search_query(self, request: JobSearchRequest) -> str:
+        """Construct a search query for job search"""
         query_parts = [request.query, "jobs"]
 
         if request.location:
@@ -23,41 +23,41 @@ class JobSearchService:
 
         return " ".join(query_parts)
 
-    def _process_search_results(self, results: Dict[str, Any]) -> List[JobResult]:
-        job_results = []
-        for result in results.get("organic_results", []):
-            job_results.append(JobResult(
-                title=result.get("title", ""),
-                link=result.get("link", ""),
-                snippet=result.get("snippet", ""),
-                company=result.get("source", ""),
-                location=result.get("location", ""),
-                posted_date=result.get("date", "")
-            ))
-        return job_results
-
-    async def _run_in_threadpool(self, func, *args):
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._thread_pool, func, *args)
-
-    async def search_jobs(self, request: JobSearchRequest) -> List[JobResult]:
+    async def search_jobs(self, request: JobSearchRequest) -> JobSearchResponse:
         try:
+            # Construct job-specific search query
             search_query = self._construct_search_query(request)
 
-            # Run the synchronous SerpAPI call in a thread pool
-            results = await self._run_in_threadpool(
-                self.search.results,
-                search_query,
-                request.num_results
+            # Create search request
+            search_request = SearchRequest(
+                query=search_query,
+                num_results=request.num_results
             )
 
-            # Process results in the event loop
-            return self._process_search_results(results)
+            # Perform search
+            search_results = await self.search_service.search(search_request)
+
+            # Convert search results to job results
+            job_results = [
+                JobResult(
+                    title=result.title,
+                    link=result.link,
+                    snippet=result.snippet,
+                    company=result.source,
+                    location=result.metadata.get("location"),
+                    posted_date=result.metadata.get("date")
+                )
+                for result in search_results
+            ]
+
+            return JobSearchResponse(
+                results=job_results,
+                total_results=len(job_results),
+                search_query=request.query
+            )
         except Exception as e:
             raise Exception(f"Error searching jobs: {str(e)}")
 
     async def cleanup(self):
-        """
-        Cleanup resources when the service is shutting down
-        """
-        self._thread_pool.shutdown(wait=True)
+        """Cleanup resources"""
+        await self.search_service.cleanup()
