@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from .api.job_routes import router as job_router
+from .api.document_routes import router as document_router
 from .config.settings import get_settings
 import uvicorn
 from contextlib import asynccontextmanager
@@ -20,6 +21,7 @@ app = FastAPI(
 
 # Include routers
 app.include_router(job_router, prefix=settings.API_PREFIX)
+app.include_router(document_router, prefix=settings.API_PREFIX)
 
 @app.get("/")
 async def root():

@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "Job Search API"
     DEBUG: bool = True
     SERPAPI_API_KEY: str = os.getenv("SERPAPI_API_KEY", "")
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     API_PREFIX: str = "/api/v1"
 
     class Config:
